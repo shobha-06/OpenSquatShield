@@ -1,0 +1,256 @@
+v2.3.0 (2026-04-08)
++ Added Premium Feed mode (--premium): downloads paid NRD feed from
+  api.opensquat.com/v1/feeds/nrd-lite using X-API-Key header auth,
+  then runs the same local Levenshtein pipeline.
++ Added Premium API mode (--api): queries the openSquat lookalike REST
+  API per keyword instead of running local Levenshtein on a downloaded
+  feed. Both Premium modes share a single openSquat API key.
++ New flags: --premium, --api, --api-key, --api-fuzziness,
+  --api-history-days, --api-max-results.
++ API key resolution priority: --api-key > $OPENSQUAT_API_KEY > api_key.txt
++ New module opensquat/auth.py for API key resolution.
++ New module opensquat/api_client.py with typed exceptions
+  (APIAuthError, APIPlanError, APIQuotaExhausted, APIBadRequest, APIError).
++ Premium API mode is parallelized with ThreadPoolExecutor (one worker
+  per keyword, capped at 8) and reuses a single requests.Session for
+  connection pooling.
++ Premium API mode honors --dns by annotating each returned domain via
+  DNSValidator.
++ Quota exhaustion (HTTP 429) returns partial results gracefully.
++ Summary output now reports the active mode, API call count, and balance.
++ Default Community mode is unchanged - existing users need no flags.
++ Premium API mode preserves keyword file order in streaming output
+  (keywords print in the same order as keywords.txt even though calls
+  run in parallel).
++ CLI prints a masked confirmation line when an API key is loaded
+  (e.g. "[*] API key loaded: os_gL...L5Mb") so users can verify which key
+  was picked up without leaking the full value.
++ Usability hint: passing --api-key without --premium or --api prints a
+  warning explaining the key will be ignored in Community mode.
++ Premium API mode summary now shows balance used vs initial (e.g.
+  "4972 (used 4 of 4976 this run)") when both values are available.
++ Community feed downloads now set a 60s HTTP timeout (previously
+  unbounded - a hung connection would hang the whole CLI).
++ Added tests for auth, api_client, feed_manager, and arg_parser.
++ Fixed homoglyphs dependency pin: >=2.1.0 did not exist on PyPI
+  (max is 2.0.4). Lowered to >=2.0.0 on both requirements.txt and
+  pyproject.toml so fresh installs resolve.
++ Premium API mode now distinguishes transient upstream rate limiting
+  (HTTP 429 with Retry-After header) from permanent quota exhaustion.
+  Rate limit hits print a yellow warning with the retry delay and
+  preserve the real API balance in the summary; quota exhaustion keeps
+  the existing red abort path that forces balance to 0.
++ New --api-rate-limit N flag for Premium API mode caps outbound
+  request rate across all workers via a shared fixed-interval limiter.
+  Default is unlimited (unchanged behavior for existing scripts). Set
+  to a value at or below your backend's sustained rate policy to avoid
+  triggering rate limits on large scans (e.g. 8 for a backend that
+  allows 10 req/s).
++ api_client now surfaces plain-text error response bodies in error
+  messages when the server returns a non-JSON 4xx/5xx, instead of
+  falling back to a generic label. The actual upstream message now
+  reaches the user.
++ Premium API summary now shows "calls made: N (of M)" when a run
+  ends early, plus a yellow "Rate limit hit" or red "Quota exhausted"
+  reason line so users can tell at a glance why the scan was cut short.
++ Premium API mode JSON output now preserves the full per-domain
+  metadata the server returns: tld, NRD first-seen date, an IDN
+  homograph flag, and the unicode rendering for homographs. Previously
+  the tool parsed these fields from the response body and then
+  discarded them, hiding the unicode characters behind bare punycode
+  strings like "xn--mirosoft-hw7c.com".
++ CSV output is now a proper one-row-per-domain table with columns
+  keyword,domain,tld,first_seen,is_idn,unicode. Fixes the pre-existing
+  writerow-vs-writerows bug that was writing all domains as a single
+  row. Written with a UTF-8 BOM so Excel on Windows correctly renders
+  the unicode homograph column.
++ BREAKING (JSON consumers of v2.2.3 / v2.2.4): each entry in a
+  keyword's "domains" array is now an object {"domain": "..."} instead
+  of a bare string. Migration is one line of user code:
+    OLD:  for d in kw["domains"]: print(d)
+    NEW:  for d in kw["domains"]: print(d["domain"])
+  The top-level [{"keyword": ..., "domains": [...]}] shape is unchanged.
++ Community and Premium Feed JSON output uses the same per-domain-
+  object shape for cross-mode consistency; the extra metadata fields
+  are populated only in Premium API mode where the upstream source
+  provides them.
++ --dns annotation is unchanged by the enrichment (still receives the
+  punycode domain string as before); post-processing filters (--vt,
+  --subdomains, --portcheck, --phishing) continue to operate on a flat
+  list[str] contract and are not affected by the rich JSON/CSV output.
++ New LookalikeDomain dataclass in opensquat.api_client exposes the
+  parsed per-domain fields for any downstream consumer using the
+  module programmatically.
++ Pre-release hardening pass — bug fixes:
+  - feed_manager: surface local feed read errors instead of silently
+    re-downloading on every run (replaced bare except with targeted
+    OSError/IOError + yellow warning).
+  - vt.py: fixed --subdomains feature (issue #111). main() now takes a
+    named mode argument ("report" default or "subdomains") with a new
+    subdomains() method that calls the VT v3
+    /api/v3/domains/{domain}/subdomains endpoint.
+  - vt.py: fixed domain_report() returning None on missing data
+    (issue #112). Now returns [0, -1] which the caller's existing
+    "VT throttling" branch already handles, eliminating the TypeError.
+  - vt.py: fixed set_apikey() crash on empty lines (line[0] indexing
+    bug, same pattern as #113) and last-line-wins behavior — now reads
+    the first usable line and breaks.
+  - phishing.py: fixed line[0] crash on whitespace-only keyword lines
+    plus broken keyword counter; replaced with strip()+startswith("#").
+  - phishing.py: fixed case-sensitivity bug — phishing_site = site.lower()
+    was being immediately overwritten by site.replace("\\n", ""), so
+    mixed-case phishing entries (e.g. "Login.com") never matched
+    lowercase keywords.
+  - phishing.py update_db: fixed chunked-encoding false-negative
+    (Content-Length=0 was treated as "file not found" even when the
+    body had valid data — same bug already fixed in feed_manager.py).
+  - phishing.py update_db: added 60s HTTP timeout (was unbounded).
+  - feed_manager.py: collapsed two literally-identical if/else branches;
+    premium downloads now actually use the longer 120s timeout the
+    code comment promised.
+  - check_update.py: parse_version() raised ValueError on non-semver
+    server responses (HTML error pages, "2.3.0-rc1", blank bodies),
+    crashing the CLI at the very end of an otherwise successful run.
+    Now wrapped in try/except. Also added a 10s timeout to the version
+    check fetch.
+  - ct.py: added 10s timeout to requests.get() in
+    CRTSH.check_certificate so a hung crt.sh response no longer
+    freezes the CLI when --doppelganger iterates over many domains.
+  - api_client.py: pass allow_redirects=False on the lookalike POST
+    so the session's X-API-Key header cannot leak to a redirect target
+    on a different host (requests strips Authorization on cross-host
+    redirects but NOT custom headers).
+
+v2.2.4 (2026-03-30)
++ Raised minimum Python version from 3.8 to 3.10 (Python 3.8 and 3.9 are EOL).
+
+v2.2.3 (2026-03-29)
++ Fixed Unicode encoding error on Windows (issue #104).
++ JSON output now groups results by keyword (issue #105).
++ JSON output respects post-processing filters (--vt, --subdomains, --portcheck).
++ Fixed file_input.py crash on empty lines in keywords file.
++ Added encoding='utf-8' to all file open() calls.
++ Added pretty-print and Unicode support to JSON output.
+
+v2.2.2 (2026-03-28)
++ Fixed homoglyphs dependency version pin (2.1.0 doesn't exist on PyPI, corrected to 2.0.0)
+
+v2.2.1 (2026-03-28)
++ PyPI package support: pip install opensquat
++ Auto-publish to PyPI via GitHub Actions on push to master
++ Added opensquat CLI entry point for pip users
++ Backward compatible: python opensquat.py still works for repo users
+
+v2.2.0 (2026-03-28)
++ Major Code Refactoring: Split app.py into FeedManager, DNSValidator, and SquattingDetector modules.
++ Performance: Native Levenshtein with early exit optimization (~5.6x faster).
++ Removed strsimpy, numpy, and packaging dependencies (native Python replacements).
++ Removed Jaro-Winkler method (Levenshtein catches more squatting patterns).
++ Added -u/--url flag for custom feed URL.
++ Added --doppelganger flag (separated from --ct).
++ Added path traversal protection for feed URL filename extraction.
++ Fixed args.ct incorrectly mapped to doppelganger_only parameter.
++ Fixed ct.py not printing actual URL on errors.
++ Fixed read_files() appending raw lines instead of cleaned domains.
++ Fixed keyword enumeration starting at 0 instead of 1.
++ Removed deprecated Telegram Bot and RapidAPI integrations from README.
++ Updated Python version support from 3.6+ to 3.8+.
++ Pinned minimum dependency versions in requirements.txt.
++ Separated runtime and dev dependencies (requirements-dev.txt).
++ Renamed project to openSquat Core (open-core model).
+
+v2.1.2 (2026-01-08)
++ Fixed feed validation for chunked responses (feeds with missing Content-Length header)
+
+v2.1.1 (2026-01-04)
++ Added support for comments in the feeds file
+- Removed/Deprecated support for weekly and monthly feed files.
+
+v2.1.0 (2023-06-04)
++ openSquat now supports Multiprocessing and Multithreading (thanks to maaaaz) - major performance boost
++ dnsPython library has been updated (thanks to maaaaz)
++ Multiple fixes including DepreciationWarning (more details pull #85)
+
+v2.0.0 (2023-03-11)
++ Improved VirusTotal integration and support for VT API v3
++ new configuration file "vt_key.txt" for VirusTotal API key
++ Fixed bug #78 on CT (thanks to jj98594 and TerminalFi)
++ Adopted Semantic Versioning (https://semver.org)
+
+v1.99 (2022-05-21)
++ Bug correction (#50) - Suspicious certificate results not showing in results.txt
+
+v1.98 (2022-04-17)
++ Bug correction (#63) - double DNS validation 
+
+v1.97 (2020-10-18)
++ Domains can be verified is they are blacklisted to any VirusTotal engine
++ You can now filter results using different args
++ minor change, the number of domains showing with the thousand comma 
+
+v1.96 (2020-10-11)
++ Bandwidth saving - only download the latest feeds if it has changed
++ added generic.txt containing generic keywords used for phishing
+
+v1.95 (2020-09-25)
++ Added --portcheck flag to validate if flagged domains have port 80/443 opened
+
+v1.94 (2020-09-19)
++ Run file is back again to "opensquat.py"
++ Checks for sudomains (virustotal)
+- Doppenganger options replaced by certificate transparency
+
+v1.93 (2020-09-07)
++ Checks for the latest version after each run
+
+v1.92 (2020-09-04)
++ Feeds URL changed from Github to feeds.opensquat.com (CDN for faster delivery)
++ Added the old feed (Github) as the backup URL case the primary fails
++ Default period is now day
++ default HTTP USER_AGENT is now openSquat+version 
+
+v1.91 (2020-07-19)
++ Switched Quad9 from DoH to native DNS
++ It now shows squatting progress in percentage
+- Bug on phishing keyword counter
+
+v1.9 (2020-07-15)
++ Now it checks against active and known Phishing domains (Phishing Database)
+
+v1.8 (2020-07-12)
++ Add support for DNS validations (Quad9)
+
+v1.7 - (2020-06-03)
++ New searchable period by month
++ default search period changed from day to month
+
+v1.6 - (2020-05-26)
++ Support for certificate transparency (CT) search
+
+v1.5 - (2020-05-20)
++ Added doppelganger only feature
+
+v1.4 - (2020-05-17)
++ Jaro-Winkler algorithm support for string similarity
+
+v1.3 - (2020-05-15)
++ New searchable period options: day (default) and week
++ Added download size information for domains file
++ Travis-CI support (by mateuszz0000)
++ Code clean-up (by mateuszz0000)
+
+v1.2 - (2020-05-11)
++ Added support for IDN homographs attacks
++ New logo 
++ New python library homoglyphs is required
++ New python library confusable_homoglyphs is required
++ Terminal colours added
+- Removed support for lxml
+
+v1.1 - (2020-05-08)
++ Major improvements for Levenshtein implementation (5 times faster)
++ New python library strsimpy is required
+- Removed numpy lib
+
+v1.0 - (2020-05-07)
++ Initial release

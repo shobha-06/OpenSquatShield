@@ -1,0 +1,20 @@
+# openSquat API Key
+#
+# Get your key at https://opensquat.com
+#
+# RECOMMENDED: use the OPENSQUAT_API_KEY environment variable instead
+# of this file. The env var is harder to leak accidentally (no file
+# on disk to forget about, no file permissions to misconfigure) and
+# keeps your key out of the working tree entirely:
+#
+#     export OPENSQUAT_API_KEY=os_your_key_here
+#     opensquat -k keywords.txt --api
+#
+# Priority order for key resolution (highest to lowest):
+#   1. --api-key CLI flag
+#   2. $OPENSQUAT_API_KEY environment variable   <-- recommended
+#   3. This file (api_key.txt in the current working directory)
+#
+# If you do use this file, add your key below on its own line. The
+# first non-comment, non-blank line is read as the key. Lines starting
+# with # and blank lines are ignored.
