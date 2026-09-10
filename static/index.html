@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenSquat — Threat Intelligence Dashboard</title>
+  
+  <!-- Leaflet CSS for Live World Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Correct path pointing to static folder -->
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <!-- JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="brand-logo">OS</div>
+        <div class="brand-info">
+          <h1>OpenSquat Shield</h1>
+          <p>Domain Protection & Threat Intelligence Platform</p>
+        </div>
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-tab="tab-dashboard">◈ Dashboard</button>
+          <button class="nav-tab" data-tab="tab-scans">🛡️ Security Scans</button>
+          <button class="nav-tab" data-tab="tab-analytics">📊 Analytics</button>
+          <button class="nav-tab" data-tab="tab-threat-maps">🌐 Threat Maps</button>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <span id="healthBadge" class="badge badge-ok">System Online</span>
+      </div>
+    </header>
+
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active-content">
+      <!-- Top Metrics Row -->
+      <section class="stats-row">
+        <div class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">DOMAINS SHOWN</span>
+            <span class="stat-val" id="statShown">0</span>
+          </div>
+          <div class="sparkline-wrap"><canvas id="sparkShown"></canvas></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">THREATS DETECTED</span>
+            <span class="stat-val threat-glow" id="statDetected">0</span>
+          </div>
+          <div class="sparkline-wrap"><canvas id="sparkDetected"></canvas></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">ACTIVE KEYWORDS</span>
+            <span class="stat-val" id="statKeywords">0</span>
+          </div>
+          <div class="sparkline-wrap"><canvas id="sparkKeywords"></canvas></div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">TOTAL FEED SIZE</span>
+            <span class="stat-val" id="statFeed">100,000</span>
+          </div>
+          <div class="sparkline-wrap"><canvas id="sparkFeed"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Dashboard Main Layout Grid -->
+      <main class="dashboard-grid">
+        <!-- Left Sidebar Controls -->
+        <aside class="grid-col left-col">
+          <div class="panel">
+            <h2>Scanner Configuration</h2>
+            
+            <label class="field">
+              <span>Keywords <small>(one per line)</small></span>
+              <textarea id="keywords" rows="4"></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label class="field">
+                <span>Mode</span>
+                <select id="mode">
+                  <option value="community">Community (Free Feed)</option>
+                  <option value="premium_feed">Premium Feed</option>
+                  <option value="premium_api">Premium API</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Confidence: <small id="confidenceLabel">1 — High</small></span>
+                <input type="range" id="confidence" min="0" max="4" value="1" step="1" />
+              </label>
+            </div>
+
+            <fieldset class="options">
+              <legend>Active Security Checks</legend>
+              <label class="check"><input type="checkbox" id="dns" checked /> DNS Validation (Quad9)</label>
+              <label class="check"><input type="checkbox" id="doppelganger" checked /> HTTPS Reachability</label>
+              <label class="check"><input type="checkbox" id="portcheck" checked /> Port Check (80/443)</label>
+              <label class="check"><input type="checkbox" id="vt" checked /> VirusTotal Check</label>
+            </fieldset>
+
+            <button id="scanBtn" class="btn-primary" type="button">Run Scan</button>
+            <p id="status" class="status"></p>
+          </div>
+
+          <div class="panel">
+            <h3>Scan Volume over Time</h3>
+            <div class="chart-container">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Side Data Visuals & Table -->
+        <section class="grid-col right-col">
+          <div class="middle-row">
+            <div class="panel donut-panel">
+              <h3>Risk Breakdown</h3>
+              <div class="donut-wrap">
+                <canvas id="riskDonutChart"></canvas>
+              </div>
+            </div>
+
+            <div class="panel donut-panel">
+              <h3>Scan Progress</h3>
+              <div class="donut-wrap">
+                <canvas id="progressDonutChart"></canvas>
+                <div class="donut-center-text" id="progressPercent">100%</div>
+              </div>
+            </div>
+
+            <div class="panel map-panel">
+              <div class="panel-header-inline">
+                <h3>Global Live Threat Map</h3>
+              </div>
+              <div id="miniMap" class="map-container-small"></div>
+            </div>
+          </div>
+
+          <!-- Table Output Panel -->
+          <div class="panel table-panel">
+            <div class="output-header">
+              <h3>Recent Detected Domains</h3>
+              <div class="output-actions">
+                <button id="exportJson" class="btn-ghost" type="button">Export JSON</button>
+                <button id="exportCsv" class="btn-ghost" type="button">Export CSV</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table id="resultsTable">
+                <thead>
+                  <tr>
+                    <th>Keyword</th>
+                    <th>Domain</th>
+                    <th>Reachable</th>
+                    <th>Ports</th>
+                    <th>VT Analysis</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+              </table>
+            </div>
+
+            <details class="logs-panel">
+              <summary>Scan activity logs</summary>
+              <pre id="logs" class="logs">[INFO] System initialized. Ready to execute live intelligence scan.</pre>
+            </details>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- TAB 2: SECURITY SCANS -->
+    <div id="tab-scans" class="tab-content hidden-content">
+      <div class="panel">
+        <h2>Security Scans Management</h2>
+        <p class="tab-subtitle">Schedule, manage, and execute automated background scans across your target brands.</p>
+        <div class="scans-list">
+          <div class="scan-item">
+            <div>
+              <strong>Brand Protection Daily Scan</strong>
+              <div class="sub-text">Mode: Premium API</div>
+            </div>
+            <span class="badge badge-ok">Scheduled (Daily 00:00)</span>
+          </div>
+          <div class="scan-item">
+            <div>
+              <strong>CT Log Listener</strong>
+              <div class="sub-text">SSL Certificate Monitoring | Mode: Realtime</div>
+            </div>
+            <span class="badge badge-ok">Active Streaming</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: ANALYTICS -->
+    <div id="tab-analytics" class="tab-content hidden-content">
+      <div class="panel">
+        <h2>Threat Analytics & Trends</h2>
+        <p class="tab-subtitle">In-depth breakdown of typosquatting permutations and domain registration behavior.</p>
+        <div class="analytics-grid">
+          <div class="chart-card">
+            <h3>Top Impersonated TLDs</h3>
+            <div class="chart-container"><canvas id="analyticsTldChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Homoglyph vs Doppelgänger Attacks</h3>
+            <div class="chart-container"><canvas id="analyticsTypeChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: THREAT MAPS -->
+    <div id="tab-threat-maps" class="tab-content hidden-content">
+      <div class="panel">
+        <h2>Global Infrastructure Heatmap</h2>
+        <p class="tab-subtitle">Interactive real-time map displaying server origin coordinates for detected threats.</p>
+        <div id="largeMap" class="map-container-large"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Correct path pointing to static JavaScript -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
