@@ -1,382 +1,200 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/atenreiro/opensquat/master/screenshots/openSquat_logo.png" alt="openSquat Logo" width="550"/>
-</p>
-
-<h1 align="center">openSquat Core</h1>
-
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
-  <a href="https://github.com/atenreiro/opensquat/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
-  <a href="https://github.com/atenreiro/opensquat/issues"><img src="https://img.shields.io/github/issues/atenreiro/opensquat" alt="GitHub issues"></a>
-  <a href="https://github.com/atenreiro/opensquat/stargazers"><img src="https://img.shields.io/github/stars/atenreiro/opensquat" alt="GitHub stars"></a>
-</p>
-
----
-
-## 📑 Table of Contents
-
-- [What is openSquat?](#-what-is-opensquat)
-- [Featured In](#-featured-in)
-- [Open-Core Model](#-open-core-model)
-- [Key Features](#-key-features)
-- [Quick Start](#-quick-start)
-- [Requirements](#-requirements)
-- [Usage](#-usage)
-- [Premium and API Modes](#-premium-and-api-modes)
-- [Configuration](#%EF%B8%8F-configuration)
-- [Automation](#-automation)
-- [CLI Reference](#-cli-reference)
-- [Contributing](#-contributing)
-- [Author](#-author)
-- [License](#-license)
-
----
-
-## 🎯 What is openSquat?
-
-openSquat is an **Open Source Intelligence (OSINT)** security tool that identifies cyber squatting threats targeting your brand or domains:
-
-| Threat Type | Description |
-|-------------|-------------|
-| 🎣 **Phishing** | Fraudulent domains mimicking your brand |
-| 🔤 **Typosquatting** | Domains with common typos (e.g., `gooogle.com`) |
-| 🌐 **IDN Homograph** | Look-alike characters from other alphabets |
-| 👥 **Doppelgänger** | Domains containing your brand name |
-| 🔀 **Bitsquatting** | Single-bit errors in domain names |
-
----
-
-## 🌟 Featured In
-
-> **"A powerful swiss army knife for brand protection"**
-> — [WhoisXML API Blog](https://www.whoisxmlapi.com/blog/orchestrating-open-source-software-and-whois-newly-registered-domain-data-feeds-to-fight-the-typosquatting-plague), August 2022
-
-> **"A tool with insane power to fight typosquatting and all related types of cyber mischief."**
-> — [WhoisXML API Blog](https://www.whoisxmlapi.com/blog/orchestrating-open-source-software-and-whois-newly-registered-domain-data-feeds-to-fight-the-typosquatting-plague), August 2022
-
-> **"A handy tool for collecting information on newly registered domains."** — ranked Top 5 phishing detection tool
-> — [SOCRadar Blog](https://socradar.io/blog/top-5-tools-for-phishing-domain-detection/), July 2022
-
-> **"openSquat provides essential protection against domain squatting and phishing attacks through automated monitoring and detection."**
-> — [Prince Yadav, TutorialsPoint](https://www.tutorialspoint.com/article/opensquat-ndash-domain-squatting-and-phishing-watchdog), March 2026
-
-### Academic Citation
-
-> **"OpenSquat identified 103 squatting domains, 960 active phishing websites, and 53 domains with suspicious certificates."**
-> — Sharma et al., [Journal of Information Security and Cybercrimes Research (JISCR)](https://journals.nauss.edu.sa/index.php/JISCR/article/download/2805/1349), Vol. 7, Issue 1, June 2024
-
----
-
-## 🔓 Open-Core Model
-
-openSquat follows an **open-core model**:
-
-- **Core detection engine** — Open source and community-driven
-- **Advanced capabilities** — Delivered through commercial intelligence services
-
-This model enables transparency and community collaboration while supporting the scale, reliability, and operational requirements of enterprise use.
-
----
-
-## ✨ Key Features
-
-- 📅 **Daily NRD feeds** — Automatic newly registered domain updates
-- 🔍 **Similarity detection** — Levenshtein distance algorithm
-- 🔓 **Three operating modes** — **Community** (free feed), **Premium Feed** (paid feed, same local pipeline), or **Premium API** (hosted lookalike service). The two Premium modes share a single openSquat API key — see [Premium and API Modes](#-premium-and-api-modes).
-- 🛡️ **VirusTotal integration** — Check domain reputation
-- 🌐 **Quad9 DNS validation** — Identify malicious domains
-- 📜 **Certificate Transparency** — Monitor SSL/TLS certificates
-- 📊 **Multiple output formats** — TXT, JSON, CSV
-
----
-
-## 🚀 Quick Start
-
-### Install via pip (recommended)
-
-```bash
-pip install opensquat
-opensquat -k keywords.txt
-```
-
-### Or clone the repository
-
-```bash
-git clone https://github.com/atenreiro/opensquat
-cd opensquat
+🛡️ OpenSquat Shield
+Domain Protection & Threat Intelligence Platform
+OpenSquat Shield is a cybersecurity-focused domain protection and threat intelligence platform designed to detect suspicious domains that may impersonate legitimate brands or keywords.
+The project provides a web-based dashboard for scanning domains, analysing security indicators, monitoring threats, viewing analytics, and exporting scan results.
+🎯 Objectives
+Detect domain squatting and impersonation attempts.
+Identify typosquatting, homoglyph and doppelgänger-style domains.
+Perform security checks on detected domains.
+Present threat information through an interactive dashboard.
+Provide analytics for detected threats.
+Visualize threat infrastructure on a global map.
+Export scan results in JSON and CSV formats.
+🔍 Key Features
+1. Domain Threat Detection
+OpenSquat Shield can be used to identify suspicious domains related to monitored keywords, including:
+Typosquatting
+Homoglyph attacks
+Doppelgänger domains
+Phishing-related domains
+Suspicious domain variations
+2. Security Checks
+The dashboard includes multiple security checks:
+DNS Validation – checks domain resolution using Quad9.
+HTTPS Reachability – checks whether a domain is reachable through HTTPS.
+Port Check – checks common web ports such as 80 and 443.
+VirusTotal Check – provides an additional threat-analysis indicator when configured.
+3. Interactive Dashboard
+The dashboard provides:
+Domains Shown
+Threats Detected
+Active Keywords
+Total Feed Size
+Scan Progress
+Scan Volume
+Risk Breakdown
+Recent Detected Domains
+Scan Activity Logs
+4. Security Scans
+The interface provides security monitoring options such as:
+Brand Protection Daily Scan
+Premium API scan mode
+CT Log Listener
+SSL Certificate Monitoring
+Scheduled scanning
+5. Threat Analytics
+The Analytics section provides visual information such as:
+Top Impersonated TLDs
+Homoglyph vs Doppelgänger attacks
+Threat/risk distribution
+6. Global Threat Map
+The Threat Maps section provides an interactive map for displaying infrastructure information associated with detected threats.
+7. Export Results
+Scan results can be exported as:
+JSON
+CSV
+🖥️ Dashboard Sections
+The web dashboard contains four main sections:
+Section
+Purpose
+Dashboard
+Overview of scans, threats and system activity
+Security Scans
+Security monitoring and scanning options
+Analytics
+Threat statistics and attack analysis
+Threat Maps
+Global visualization of detected threat infrastructure
+🛠️ Technologies Used
+Frontend
+HTML5
+CSS3
+JavaScript
+Chart.js
+Leaflet.js
+Backend
+Python
+FastAPI
+Uvicorn
+Pydantic
+Cybersecurity / Threat Intelligence
+DNS validation
+HTTPS reachability checks
+Port checking
+VirusTotal integration
+Domain squatting detection
+Homoglyph detection
+Phishing/threat analysis
+📁 Project Structure
+OpenSquatShield/
+│
+├── opensquat-web/
+│   ├── static/
+│   │   ├── index.html
+│   │   ├── style.css
+│   │   └── app.js
+│   │
+│   └── requirements.txt
+│
+├── opensquat/
+│   └── cybersecurity and domain-analysis modules
+│
+├── screenshots/
+│   ├── opensquat1.jpg
+│   ├── opensquat2.jpg
+│   ├── opensquat3.jpg
+│   ├── opensquat4.jpg
+│   └── opensquat5.jpg
+│
+├── tests/
+├── README.md
+├── requirements.txt
+└── LICENSE
+⚙️ Requirements
+The web dashboard uses the following Python packages:
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.0.0
+🚀 Installation
+1. Clone the repository
+git clone https://github.com/shobha-06/OpenSquatShield.git
+cd OpenSquatShield
+2. Create a virtual environment
+python -m venv venv
+3. Activate the virtual environment
+Windows
+venv\Scripts\activate
+Linux / macOS
+source venv/bin/activate
+4. Install dependencies
 pip install -r requirements.txt
-python3 opensquat.py -k keywords.txt
-```
-
-> **Repo users:** in all the examples below, replace `opensquat` with `python3 opensquat.py` to run from a cloned checkout.
-
----
-
-## 📦 Requirements
-
-- **Python 3.10+**
-- Dependencies: `confusable_homoglyphs`, `homoglyphs`, `colorama`, `requests`, `dnspython`, `beautifulsoup4`
-
----
-
-## 📖 Usage
-
-### Basic Commands
-
-```bash
-# Default run
-opensquat
-
-# Show all options
-opensquat -h
-
-# Use custom keywords file
-opensquat -k my_keywords.txt
-```
-
-### Validation Options
-
-```bash
-# DNS validation via Quad9
-opensquat --dns
-
-# Check Certificate Transparency logs
-opensquat --ct
-
-# Scan for open ports (80/443)
-opensquat --portcheck
-
-# Cross-reference phishing databases
-opensquat --phishing results.txt
-```
-
-### Output Formats
-
-```bash
-# Save as JSON
-opensquat -o results.json -t json
-
-# Save as CSV
-opensquat -o results.csv -t csv
-```
-
-### Confidence Levels
-
-| Level | Flag | Description |
-|-------|------|-------------|
-| 0 | `-c 0` | Very high (fewer results, high accuracy) |
-| 1 | `-c 1` | High (default) |
-| 2 | `-c 2` | Medium |
-| 3 | `-c 3` | Low |
-| 4 | `-c 4` | Very low (more results, more false positives) |
-
-> **Note:** On the API side (`--api`), the five confidence levels map to four fuzziness values (`exact`, `low`, `auto`, `high`) — `-c 3` and `-c 4` both map to `high`. See [Premium and API Modes](#-premium-and-api-modes) for the full mapping and how to override with `--api-fuzziness`.
-
----
-
-## 💎 Premium and API Modes
-
-openSquat supports three modes. The default (Community) is unchanged — existing users need no flags. The two Premium modes share a single openSquat API key; pick **Premium Feed** if you want the same local detection pipeline with a larger feed, or **Premium API** if you want server-side detection with no local feed download.
-
-| Mode | Flag | What it does |
-|------|------|--------------|
-| **Community** (default) | _(none)_ | Downloads the free NRD feed (~100k domains/day) and runs local Levenshtein detection. |
-| **Premium Feed** | `--premium` | Downloads the paid NRD feed (`nrd-lite`, much larger) using your openSquat API key, then runs the same local Levenshtein detection. |
-| **Premium API** | `--api` | Skips local feed download. Queries the openSquat lookalike REST API per keyword and returns server-side matches. |
-
-### Get an API key
-
-Sign up at [opensquat.com](https://opensquat.com) to get a key. The same key works for both Premium Feed (`--premium`) and Premium API (`--api`).
-
-### Provide the API key (priority order)
-
-1. `--api-key YOUR_KEY` on the command line
-2. `OPENSQUAT_API_KEY` environment variable
-3. `api_key.txt` in the current directory (one key per file, `#` comments allowed)
-
-> The CLI flag is visible in `ps` output. Prefer the env var or key file in shared environments.
-
-### Examples
-
-```bash
-# Premium Feed mode — same local pipeline, larger feed
-export OPENSQUAT_API_KEY=os_xxxxxxxxxxxx
-opensquat -k keywords.txt --premium
-
-# Premium API mode — server-side detection per keyword
-opensquat -k keywords.txt --api
-
-# Premium API + DNS reputation check on each returned domain
-opensquat -k keywords.txt --api --dns
-
-# Premium API with JSON output grouped by keyword
-opensquat -k keywords.txt --api -t json -o results.json
-
-# Tune the Premium API search
-opensquat -k keywords.txt --api --api-fuzziness high --api-history-days 7 --api-max-results 200
-```
-
-When `--premium` or `--api` successfully loads a key, the CLI prints a masked confirmation line so you can verify which key was picked up without leaking it:
-
-```
-[*] API key loaded: os_gL...L5Mb
-```
-
-In Premium API mode, the run summary reports the active mode, the number of API calls made, and your remaining balance with usage delta (for example, `4972 (used 4 of 4976 this run)`). Per-keyword progress lines appear in the same order as your keywords file even though the calls run in parallel. Quota exhaustion (HTTP 429) returns partial results gracefully; auth errors (401) and plan errors (403) abort with a clear message.
-
-If the backend rate-limits your request (HTTP 429 with a `Retry-After` header), the tool distinguishes it from quota exhaustion: you'll see a yellow `[!] Rate limit hit (retry in Ns)` warning instead of the red `quota exhausted` message, partial results are still returned, and the summary preserves your real API balance so you can see exactly how many credits you actually used. To avoid triggering rate limits on large scans, pass `--api-rate-limit N` to cap outbound requests per second across all workers. A value of `8` is a safe starting point for most backends.
-
-```bash
-# Throttle to 8 requests/second across all workers
-opensquat -k keywords.txt --api --api-rate-limit 8
-```
-
-### Output format recommendation
-
-**JSON is the recommended output format for Premium API mode** because the API returns per-domain metadata that the other formats cannot carry as cleanly: the registered TLD, the NRD first-seen date, an IDN homograph flag, and the unicode rendering of the homograph when the domain is one.
-
-```bash
-opensquat -k keywords.txt --api -t json -o results.json
-```
-
-Example of the richer output in Premium API mode (trimmed):
-
-```json
-[
-  {
-    "keyword": "microsoft",
-    "domains": [
-      {"domain": "securite-microsoft.fr", "tld": "fr", "date": "09-04-2026", "idn": false},
-      {"domain": "xn--mirosoft-hw7c.com", "tld": "com", "date": "09-04-2026", "idn": true, "unicode": "miᴄrosoft.com"}
-    ]
-  }
-]
-```
-
-The `idn` flag plus the `unicode` rendering let you see at a glance that `xn--mirosoft-hw7c.com` is actually `ᴄ` (Latin Letter Small Capital C) impersonating the `c` in "microsoft" — information that a plain punycode string completely hides.
-
-CSV output is also supported and produces one row per domain with the same metadata columns, which suits analysts working in Excel or pandas:
-
-```bash
-opensquat -k keywords.txt --api -t csv -o results.csv
-```
-
-The CSV is written with a UTF-8 BOM so Excel on Windows correctly renders the unicode homograph column.
-
-Community and Premium Feed modes emit the same JSON top-level shape for cross-mode consistency, but with only the `domain` field populated per entry — the NRD feed does not carry the per-domain metadata that only the hosted API has:
-
-```json
-[
-  {
-    "keyword": "microsoft",
-    "domains": [
-      {"domain": "mirosoft.com"},
-      {"domain": "mcrosoft.net"}
-    ]
-  }
-]
-```
-
-If you pass `--api-key` without also selecting `--premium` or `--api`, the CLI prints a one-line hint that the key will be ignored in Community mode (no silent mode-switching).
-
-In Premium API mode, `-c/--confidence` is auto-mapped to API fuzziness (`0→exact`, `1→low`, `2→auto`, `3→high`, `4→high`). Use `--api-fuzziness` to override.
-
-Premium API (`--api`) is incompatible with `--doppelganger` and `-d/--domains`.
-
----
-
-## ⚙️ Configuration
-
-### Keywords File (`keywords.txt`)
-
-```text
-# Lines starting with # are comments
-mycompany
-mybrand
-myproduct
-```
-
-### VirusTotal API Key (`vt_key.txt`)
-
-To use `--vt` or `--subdomains`, add your API key:
-```text
-# Get your free API key at https://www.virustotal.com
-your_api_key_here
-```
-
-### openSquat API Key (`api_key.txt`)
-
-Required for `--premium` and `--api`. Create an `api_key.txt` file in the working directory:
-```text
-# Get your key at https://opensquat.com
-# Lines starting with # are ignored; the first non-comment line is used.
-os_your_key_here
-```
-
-The CLI resolves the key in this order: `--api-key` flag → `$OPENSQUAT_API_KEY` environment variable → `api_key.txt` file. The env var and file methods are preferred over the CLI flag in shared environments, since CLI arguments are visible via `ps`.
-
----
-
-## 🤖 Automation
-
-Run daily via crontab:
-
-```bash
-# pip-installed (recommended) — every day at 8 AM, feeds update ~7:30 AM UTC
-0 8 * * * cd /path/to/workdir && opensquat -k keywords.txt -o results.json -t json
-
-# Repo checkout — invoke opensquat.py directly with python3
-0 8 * * * cd /path/to/opensquat && python3 opensquat.py -k keywords.txt -o results.json -t json
-```
-
-> The `cd` into a working directory matters if you rely on `api_key.txt` (resolved from the current directory) or want `results.json` written to a specific place.
-
----
-
-## 📋 CLI Reference
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `-k, --keywords` | `keywords.txt` | Keywords file to search |
-| `-o, --output` | `results.txt` | Output filename |
-| `-t, --type` | `txt` | Output format: `txt`, `json`, `csv` |
-| `-c, --confidence` | `1` | Confidence level (0-4). In `--api` mode this is auto-mapped to fuzziness (`-c 3` and `-c 4` both → `high`). |
-| `-d, --domains` | — | Use local domain file instead of downloading |
-| `-u, --url` | opensquat feed | URL to download domain feed |
-| `--dns` | — | Enable Quad9 DNS validation |
-| `--doppelganger` | — | Doppelganger-only mode (keyword in domain + reachability check) |
-| `--ct` | — | Search Certificate Transparency logs |
-| `--phishing` | — | Cross-reference phishing database |
-| `--subdomains` | — | Fetch subdomains via VirusTotal |
-| `--portcheck` | — | Check for open ports 80/443 |
-| `--vt` | — | Validate against VirusTotal |
-| `--premium` | — | **Premium Feed mode** — use the paid NRD feed (requires openSquat API key) |
-| `--api` | — | **Premium API mode** — query the openSquat lookalike REST API per keyword (no local feed) |
-| `--api-key` | — | openSquat API key (or set `$OPENSQUAT_API_KEY`, or use `api_key.txt`) |
-| `--api-fuzziness` | _(from `-c`)_ | Premium API mode: `exact`, `low`, `high`, or `auto` |
-| `--api-history-days` | — | Premium API mode: NRD history window in days (clipped to plan cap) |
-| `--api-max-results` | — | Premium API mode: max results per keyword (clipped to plan cap) |
-| `--api-rate-limit` | _(unlimited)_ | Premium API mode: max outbound requests per second across all workers |
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
-
-- 🐛 **Report bugs** via [GitHub Issues](https://github.com/atenreiro/opensquat/issues)
-- 💡 **Request features** by opening an issue
-- 🔧 **Submit PRs** for bug fixes or enhancements
-- 📝 **Release notes** — see the [CHANGELOG](CHANGELOG) for what's new in each version
-
----
-
-## 👤 Author
-
-**Andre Tenreiro** — [LinkedIn](https://www.linkedin.com/in/andretenreiro/) · [PGP Key](https://mail-api.proton.me/pks/lookup?op=get&search=andre@opensquat.com)
-
----
-
-## 📜 License
-
-This project is licensed under the [GNU GPL v3](LICENSE).
+If you are running the web dashboard separately, install its web requirements:
+pip install -r opensquat-web/requirements.txt
+▶️ Running the Project
+The exact FastAPI entry-point filename depends on the backend file used in the local project.
+For a FastAPI application exposed as app in main.py, use:
+uvicorn main:app --reload
+Then open the local address shown by Uvicorn in your browser.
+🔄 How It Works
+The basic workflow of OpenSquat Shield is:
+User Keywords
+      ↓
+Domain Generation / Detection
+      ↓
+Suspicious Domain Identification
+      ↓
+Security Checks
+      ↓
+Threat Analysis
+      ↓
+Dashboard Visualization
+      ↓
+Export Results
+📸 Screenshots
+Dashboard
+�
+Security Scans
+�
+Analytics
+�
+Threat Map
+�
+Scan Results / Activity
+�
+🔐 Security Note
+API keys and other credentials should never be committed to a public GitHub repository.
+Use environment variables or another secure configuration method for real API keys.
+Example:
+VIRUSTOTAL_API_KEY=your_api_key_here
+Do not publish real API keys inside source code, screenshots, README.md, or configuration files.
+🔮 Future Scope
+Possible future improvements include:
+Automated scheduled scans
+Email or notification alerts
+More threat-intelligence feeds
+Improved phishing detection
+Machine-learning-based domain classification
+Advanced threat scoring
+More detailed historical analytics
+Improved authentication and role-based access
+Cloud deployment
+Continuous domain monitoring
+🎓 Project Purpose
+OpenSquat Shield was developed as a cybersecurity academic project to demonstrate practical concepts related to:
+Domain security
+Threat intelligence
+Brand protection
+Phishing detection
+DNS and network security
+Security monitoring
+Data visualization
+👩‍💻 Author
+Shobha
+BCA Student
+Cybersecurity Project
+GitHub: https://github.com/shobha-06
+⚠️ Disclaimer
+This project is intended for educational, research, and authorized security-monitoring purposes only.
+Do not use the project to scan or monitor systems, domains, or infrastructure without proper authorization.
+📄 License
+This project follows the license included in the repository.
